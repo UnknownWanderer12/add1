@@ -1,0 +1,31 @@
+
+
+
+
+
+
+flowchart LR
+  subgraph AWS_EC2["AWS EC2 (Docker host, Security Group)"]
+    subgraph DockerNet["Docker Bridge Network"]
+      GW[API Gateway]
+      PROD[Product API<br/>MySQL]
+      CAT[Category API<br/>MongoDB]
+      CFG[Config Server]
+      VAULT[Vault Server]
+      KAFKA[Kafka Broker]
+      ZK[Zookeeper]
+      KC[Keycloak]
+
+      GW -->|JWT| PROD
+      GW -->|JWT| CAT
+      KC --> GW
+      CFG --> PROD
+      CFG --> CAT
+      VAULT --> PROD
+      VAULT --> CAT
+      CAT -->|CategoryEvent| KAFKA
+      KAFKA -->|consume| PROD
+      PROD <-->|JDBC| MySQL["(MySQL)"]
+      CAT <-->|Driver| Mongo["(MongoDB)"]
+    end
+  end
