@@ -1,0 +1,28 @@
+---
+config:
+  theme: neo-dark
+---
+sequenceDiagram
+    autonumber
+    participant C as Caller (Your Code)
+    participant P as Spring AOP Proxy (Customer)
+    participant A1 as @Before Advice
+    participant A2 as @Around Advice
+    participant T as Target: Customer.setEmail()
+    participant A3 as @After Advice
+
+    C->>P: setEmail("x@y.com")
+    Note right of P: Proxy intercepts method execution
+
+    P->>A1: invoke @Before (logBeforeAccountMethods)
+    A1-->>P: return
+
+    P->>A2: invoke @Around (pre)
+    A2->>T: proceed() → call actual method
+    T-->>A2: return (void)
+    A2-->>P: @Around (post) returns
+
+    P->>A3: invoke @After (logAfterAccountMethods)
+    A3-->>P: return
+
+    P-->>C: return to caller
