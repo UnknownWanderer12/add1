@@ -1,0 +1,19 @@
+---
+config:
+  theme: neo-dark
+---
+flowchart TD
+    A["Start: CustomerApp.main()"] --> B["Create IoC Container<br/>AnnotationConfigApplicationContext(AppConfig)"]
+    B --> C["Scan & Register Beans<br/>@Configuration + @ComponentScan"]
+    C --> D["@Bean customer() → Instantiate Customer"]
+    D --> E["Inject Aware Interfaces<br/>setBeanName → setBeanFactory → setApplicationContext"]
+    E --> F["BeanPostProcessor (Before Init)<br/>CustomerBeanPostProcessor.postProcessBeforeInitialization"]
+    F --> G["Initialization Phase<br/>InitializingBean.afterPropertiesSet"]
+    G --> H["Custom Init Method<br/>initMethod = customInit"]
+    H --> I["BeanPostProcessor (After Init)<br/>CustomerBeanPostProcessor.postProcessAfterInitialization"]
+    I --> J["Bean Ready for Use<br/>context.getBean(Customer)"]
+    J --> K["Context Shutdown<br/>context.close()"]
+    K --> L["@PreDestroy"]
+    L --> M["DisposableBean.destroy"]
+    M --> N["Custom Destroy Method<br/>destroyMethod = customDestroy"]
+    N --> O["End"]
