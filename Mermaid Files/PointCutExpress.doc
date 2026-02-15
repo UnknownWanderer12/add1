@@ -1,0 +1,84 @@
+
+Spring AOP uses AspectJ pointcut expression syntax to select which method executions should be intercepted.
+The workhorse: execution(...)
+General form
+execution(modifiers? returnType declaringType? methodName(params) throws?)
+
+Wildcards
+
+* → any name/any return type
+.. → any number of package segments OR any number of parameters (depending on where it appears)
+(..) → any number of parameters of any types
+(*) → exactly one parameter of any type
+() → no parameters
+Common patterns for your project:
+
+// All methods in services package (any class, any method)
+execution(* com.cognizant.banking.services.*.*(..))
+
+// Only addCustomer methods in services package
+execution(* com.cognizant.banking.services.*.addCustomer(..))
+
+// Only in one class
+execution(* com.cognizant.banking.services.CustomerService.*(..))
+
+// All repository methods
+execution(* com.cognizant.banking.repositories.*.*(..))
+
+// Only public methods in a class
+execution(public * com.cognizant.banking.repositories.CustomerRepositoryImpl.*(..))
+
+// Specific parameter type
+execution(* com.cognizant.banking.services.*.addCustomer(com.cognizant.banking.models.Customer))
+
+
+Combine expressions
+Use logical operators:
+
+&& (AND)
+|| (OR)
+! (NOT)
+
+// Service methods except getters/setters
+execution(* com.cognizant.banking.services.*.*(..))
+&& !execution(* com.cognizant.banking.services.*.get*(..))
+&& !execution(* com.cognizant.banking.services.*.set*(..))
+
+
+
+Important: In Java annotations you must use &&, not &amp;&amp; (that HTML encoding appears in your snippet and will break it).
+
+
+Bind arguments with args(...)
+Use args when you want to capture runtime arguments into your advice parameters:
+
+@Before("execution(* com.cognizant.banking.services.CustomerService.addCustomer(..)) && args(customer)")
+public void validate(Customer customer) { ... }
+``
+
+
+This will match addCustomer(...) and pass the first argument (or matching argument by type order) as customer.
+Scope by type with within(...)
+
+// Any method execution in any type under services and its subpackages
+within(com.cognizant.banking.services..*)
+
+// A single concrete type
+within(com.cognizant.banking.models.Customer)
+
+
+Annotations with @annotation(...)
+
+// Match methods annotated with @Transactional
+@annotation(org.springframework.transaction.annotation.Transactional)
+
+
+By proxy/target type: this(...) vs target(...)
+
+this(X) → the proxy is assignable to X (usually interface)
+target(X) → the underlying object is assignable to X (implementation)
+
+this(com.cognizant.banking.repositories.CustomerRepository)
+target(com.cognizant.banking.repositories.CustomerRepositoryImpl)
+
+
